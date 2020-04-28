@@ -1,0 +1,28 @@
+{
+  "camelcase": true,
+  "curly": true,
+  "eqeqeq": true,
+  "latedef": true,
+  "quotmark": true,
+  "undef": true,
+  "strict": false,
+  "globalstrict": true,
+  "maxparams": 5,
+  "maxdepth": 5,
+  "maxcomplexity": 15,
+
+  "globals": {
+   "require": false,
+   "module": false,
+	"console": false,
+	"edererthomas": false,
+	"describe": false,
+	"it": false,
+	"expect": false,
+	"$": false,
+	"document": false,
+   "exports": false,
+   "Buffer": false,
+   "beforeEach": false
+  }
+}

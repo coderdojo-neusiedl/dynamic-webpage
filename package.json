@@ -1,0 +1,37 @@
+{
+   "name": "DynamicWebpage",
+   "version": "0.0.1",
+   "description": "template to create a dynamic webpage in a CoderDojo",
+   "private": true,
+   "author": {
+      "name": "CoderDojo",
+      "email": "info@neusiedl.coderdojo.net"
+   },
+   "licenses": [
+      {
+         "type": "BSD-3-Clause"
+      }
+   ],
+   "dependencies": {
+      "express": "4.x",
+      "socket.io": "2.x",
+      "tingodb": "0.x",
+      "promise": "7.x"
+   },
+   "devDependencies": {
+      "expect.js": "0.x",
+      "grunt": "1.x",
+      "mocha": "7.x",
+      "pug-lint": "2.x",
+      "grunt-contrib-clean": "1.x",
+      "grunt-contrib-concat": "1.x",
+      "grunt-contrib-copy": "1.x",
+      "grunt-contrib-jshint": "1.x",
+      "grunt-mocha-test": "0.x",
+      "sinon": "1.x",
+      "sinon-expect": "0.x"
+   },
+   "engines": {
+      "node": ">=12.16.2"
+   }
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+   <meta charset="UTF-8"/>
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <title>dynamic Webpage</title>
+   <script type="text/javascript" src="lib/jquery-3.5.0.min.js" charset="UTF-8"></script>
+   <script type="text/javascript" src="javascripts/dynamicPageLibrary.js" charset="UTF-8"></script>
+   <script src="/socket.io/socket.io.js" charset="UTF-8"></script>
+   <script>
+		$(document).ready(function() {
+         var onConnectedStateChanged = function onConnectedStateChanged(data) {
+				console.log('connection state = ' + data);
+			};
+			
+			var onCounterChanged = function onCounterChanged(counterValue) {
+				$('#counterValue').text(counterValue);
+			};
+			
+			var sendIncrementCommand = function sendIncrementCommand() {
+			console.log('increment');
+				bus.sendCommand(webapp.shared.topics.INCREMENT_COUNTER);
+			};
+			
+			$('#incrementButton').click(sendIncrementCommand);
+			
+			var bus = new common.infrastructure.bus.Bus();
+			bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, onConnectedStateChanged);
+			bus.subscribeToPublication(webapp.shared.topics.COUNTER, onCounterChanged);
+			var topicsToTransmit = [webapp.shared.topics.INCREMENT_COUNTER];
+			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
+      });
+   </script>
+</head>
+
+<body>
+<h1>Hello World!</h1>
+<p>counter: <span id="counterValue"></span></p>
+<button id="incrementButton">increment counter</button>
+</body>
+</html>  
