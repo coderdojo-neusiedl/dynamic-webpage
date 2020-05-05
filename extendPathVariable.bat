@@ -1,31 +1,37 @@
 @echo off
 
 set PROJECT_ROOT=%~dp0
-set GIT_HOME=D:\software\Git\PortableGit\cmd
+
+rem    The following two variables need to be set if the installation folders are not part of the PATH environment variable.
 set NODE_HOME=D:\software\Node.js\node-v12.16.2-win-x64
-set GRUNT_HOME=%PROJECT_ROOT%\node_modules\.bin
+set GIT_HOME=D:\software\Git\PortableGit\cmd
 
-if not exist %GIT_HOME% (
-   echo.
-   echo ERROR: Home folder "%GIT_HOME%" of GIT does not exist!
-   echo.
-   pause
-   exit 1
+node --version > nul 2>&1
+
+if errorlevel 1 (
+	if not exist %NODE_HOME% (
+		echo.
+		echo ERROR: Neither PATH nor NODE_HOME environment variable points to installation folder of Node.js!
+		echo.
+		pause
+		exit 1
+	) else (
+	   set "PATH=%PATH%;%NODE_HOME%"
+	)
 )
 
-if not exist %NODE_HOME% (
-   echo.
-   echo ERROR: Home folder "%NODE_HOME%" of node.js does not exist!
-   echo.
-   pause
-   exit 1
+git --version > nul 2>&1
+
+if errorlevel 1 (
+	if not exist %GIT_HOME% (
+		echo.
+		echo ERROR: Neither PATH nor GIT_HOME environment variable points to installation folder of Git!
+		echo.
+		pause
+		exit 1
+	) else (
+		set "PATH=%PATH%;%GIT_HOME%"
+	)
 )
 
-if not exist %GRUNT_HOME% (
-   echo.
-   echo WARNING: Home folder "%GRUNT_HOME%" of grunt does not exist!
-   echo.
-   pause
-)
-
-set PATH=%PATH%;%GIT_HOME%;%NODE_HOME%;%GRUNT_HOME%
+exit /b 0
