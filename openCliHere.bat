@@ -2,8 +2,6 @@
 
 set PROJECT_ROOT=%~dp0
 
-@echo off
-
 call extendPathVariable.bat
 
 if %ERRORLEVEL% GTR 0 (
