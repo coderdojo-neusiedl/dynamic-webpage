@@ -17,12 +17,12 @@
 				$('#counterValue').text(counterValue);
 			};
 			
-			var sendIncrementCommand = function sendIncrementCommand() {
-			console.log('increment');
-				bus.sendCommand(webapp.shared.topics.INCREMENT_COUNTER);
+			var sendChatMessage = function sendChatMessage() {
+				//console.log('sendChatMessage');
+				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: 'Thomas', nachricht: 'hello world'} );
 			};
 			
-			$('#incrementButton').click(sendIncrementCommand);
+			$('#senden').click(sendChatMessage);
 			
 			var bus = new common.infrastructure.bus.Bus();
 			bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, onConnectedStateChanged);
@@ -35,7 +35,23 @@
 
 <body>
 <h1>Hello World!</h1>
-<p>counter: <span id="counterValue"></span></p>
-<button id="incrementButton">increment counter</button>
+<table class="table table-sm">
+	<tbody><tr>
+		<td>Name:</td>
+		<td><input id="name" value="" size="40" type="text"></td>
+	</tr>
+	<tr>
+		<td>Nachricht:</td>
+		<td><input id="nachricht" value="" size="40" type="text"></td>
+	</tr>
+	<tr>
+		<td>Chat:</td>
+		<td><textarea id="comment" rows="5" cols="30"></textarea></td>
+	</tr>
+	<tr>
+		<td colspan="2"><button id="senden">Senden</button></td>
+	</tr>
+   </tbody>
+</table>
 </body>
 </html>  
