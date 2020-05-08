@@ -77,12 +77,11 @@ var handleFileRequests = function handleFileRequests(request,response) {
 var Constructor = function Constructor() {
 	
    var thisInstance = this;
-   var counter = 0;
    var bus;
 	
-	var onIncrementCounterCommand = function onIncrementCounterCommand() {
-		counter++;
-		bus.publish(webapp.shared.topics.COUNTER, counter);
+	var onChatMessage = function onChatMessage(data) {
+		console.log('neue Nachricht ' +JSON.stringify(data));
+		bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, data );
 	};
 	
 	this.start = function start() {
@@ -93,13 +92,12 @@ var Constructor = function Constructor() {
       bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, function(data) {
          console.log(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC + ' = ' + data);
       });
-      bus.subscribeToCommand(webapp.shared.topics.INCREMENT_COUNTER, onIncrementCounterCommand);
+      bus.subscribeToCommand(webapp.shared.topics.CHAT_MESSAGE, onChatMessage);
 		
-      var topicsToTransmit = [webapp.shared.topics.COUNTER];
+      var topicsToTransmit = [webapp.shared.topics.CHAT_BROADCAST];
       var busBridge = new common.infrastructure.busbridge.ServerSocketIoBusBridge(bus, topicsToTransmit, io);
       
-      bus.publish(webapp.shared.topics.COUNTER, counter);
-		
+     	
 		app.get('*', replaceSpacesInRequestUrlByEscapeSequence);
 		app.get('*', logRequest);
 		app.get('*', handleFileRequests );

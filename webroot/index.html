@@ -13,21 +13,21 @@
 				console.log('connection state = ' + data);
 			};
 			
-			var onCounterChanged = function onCounterChanged(counterValue) {
-				$('#counterValue').text(counterValue);
+			var onChatMessage = function onChatMessage(data) {
+				console.log('neue Nachricht ' +JSON.stringify(data));
 			};
 			
 			var sendChatMessage = function sendChatMessage() {
-				//console.log('sendChatMessage');
-				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: 'Thomas', nachricht: 'hello world'} );
+				console.log('sendChatMessage' +$('#name').val() );
+				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), nachricht: $('#nachricht').val()} );
 			};
 			
 			$('#senden').click(sendChatMessage);
 			
 			var bus = new common.infrastructure.bus.Bus();
 			bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, onConnectedStateChanged);
-			bus.subscribeToPublication(webapp.shared.topics.COUNTER, onCounterChanged);
-			var topicsToTransmit = [webapp.shared.topics.INCREMENT_COUNTER];
+			bus.subscribeToCommand(webapp.shared.topics.CHAT_BROADCAST, onChatMessage);
+			var topicsToTransmit = [webapp.shared.topics.CHAT_MESSAGE];
 			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
       });
    </script>
