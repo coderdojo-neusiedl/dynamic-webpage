@@ -3,7 +3,7 @@ This project contains the source code the virtual CoderDojo will use in the work
 
 ## Prerequisites
 
-The following software is required to install and use the workshop template.
+The following software is required to install and use the workshop project.
 
 * a text editor (e.g. [Notepad++](https://notepad-plus-plus.org), [Visual Studio Code](https://code.visualstudio.com))
 * [Node.js](https://nodejs.org/en/download/)
@@ -11,7 +11,7 @@ The following software is required to install and use the workshop template.
 
 ## installation
 
-This section describes how to install the workshop template.
+This section describes how to install the workshop project.
 
 1. create a folder on your hard disk and open a command line box
 2. execute `git clone https://github.com/coderdojo-neusiedl/dynamic-webpage.git`
