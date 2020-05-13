@@ -17,7 +17,7 @@ This section describes how to install the workshop template.
 2. execute `git clone https://github.com/coderdojo-neusiedl/dynamic-webpage.git`
 3. execute `cd dynamic-webpage`
 4. close the command line box
-5. start `dynamic-webpage/openCliHere.bat`
+5. start `dynamic-webpage/openCliHere.bat` (info: a command line box will inform you that the home folder of grunt does not exist. That's ok ... just press any key to continue)
 6. execute `git checkout -b workshop-20200515 remotes/origin/workshop-20200515`
 7. execute `npm install`
 
