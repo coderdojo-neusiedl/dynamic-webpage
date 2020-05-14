@@ -1,4 +1,4 @@
-# dynamic-webpage
+# Dynamic Webpage (ChatApp)
 This project contains the source code the virtual CoderDojo will use in the workshop on May 15th.
 
 ## Prerequisites
@@ -9,7 +9,7 @@ The following software is required to install and use the workshop project.
 * [Node.js](https://nodejs.org/en/download/)
 * [Git](https://git-scm.com/download/win)
 
-## installation
+## Installation
 
 This section describes how to install the workshop project.
 
@@ -21,10 +21,10 @@ This section describes how to install the workshop project.
 6. execute `git checkout -b workshop-20200515 remotes/origin/workshop-20200515`
 7. execute `npm install`
 
-## starting the webserver
+## Starting the webserver
 
 Start `dynamic-webpage/startWebserver.bat`. After a few seconds you should see a message like `listening at http://:::8080` telling you that the server is ready.
 
-## starting the chatApp
+## Starting the chatApp
 
 Open a browser (e.g. Firefox) and enter the address `http://localhost:8080/`.
