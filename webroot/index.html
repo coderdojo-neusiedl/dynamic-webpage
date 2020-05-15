@@ -8,22 +8,33 @@
    <script type="text/javascript" src="javascripts/dynamicPageLibrary.js" charset="UTF-8"></script>
    <script src="/socket.io/socket.io.js" charset="UTF-8"></script>
    <script>
+	   var chatInhalt = [];
+
 		$(document).ready(function() {
          var onConnectedStateChanged = function onConnectedStateChanged(data) {
-				console.log('connection state = ' + data);
 			};
 			
 			var onChatMessage = function onChatMessage(data) {
-				console.log('neue Nachricht ' +JSON.stringify(data));
+				var message = data.name+' hat geschrieben: '+data.nachricht;
+				chatInhalt[chatInhalt.length] = message;
+				chatInhalt = chatInhalt.slice(-10);
+				$('#Chat_Verlauf').val(chatInhalt.join('\n'));
 			};
 			
 			var sendChatMessage = function sendChatMessage() {
-				console.log('sendChatMessage' +$('#name').val() );
 				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), nachricht: $('#nachricht').val()} );
+				$('#nachricht').val('');
 			};
 			
 			$('#senden').click(sendChatMessage);
-			
+			$('#nachricht').keypress(function (e) {
+				var key = e.which;
+				if(key == 13)  // the enter key code
+				{
+					sendChatMessage();
+					return false;  
+				}
+			});   
 			var bus = new common.infrastructure.bus.Bus();
 			bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, onConnectedStateChanged);
 			bus.subscribeToCommand(webapp.shared.topics.CHAT_BROADCAST, onChatMessage);
@@ -34,7 +45,7 @@
 </head>
 
 <body>
-<h1>Hello World!</h1>
+<h1>Chat App</h1>
 <table class="table table-sm">
 	<tbody><tr>
 		<td>Name:</td>
@@ -46,7 +57,7 @@
 	</tr>
 	<tr>
 		<td>Chat:</td>
-		<td><textarea id="comment" rows="5" cols="30"></textarea></td>
+		<td><textarea id="Chat_Verlauf" rows="5" cols="30" readonly></textarea></td>
 	</tr>
 	<tr>
 		<td colspan="2"><button id="senden">Senden</button></td>
