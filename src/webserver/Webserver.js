@@ -78,25 +78,41 @@ var Constructor = function Constructor() {
 	
    var thisInstance = this;
    var bus;
-	
+   var database;
+   var collectionName = 'Neusiedl';
+  
+  var publish = function publish(streets){
+	 bus.publish(webapp.shared.topics.ACTUALLYNOTATHOME, streets);
+   };
+   
 	var onChatMessage = function onChatMessage(data) {
 		console.log('neue Nachricht ' +JSON.stringify(data));
 		bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, data );
 	};
+	var publishAllNotAtHome = function publishAllNotAtHome (){
+		database.getAllDocumentsInCollection(collectionName).then(publish);
+	} ;
+	
+	var onNotAtHome = function onNotAtHome(data) {
+		//console.log('not at home ' +JSON.stringify(data));
+		database.insert(collectionName, data ).then(publishAllNotAtHome);
+	};
+	
 	
 	this.start = function start() {
 	
       bus = new common.infrastructure.bus.Bus();
-      var database = new webapp.server.database.TingoDbDatabase(DATABASE_ROOT_FOLDER);
+      database = new webapp.server.database.TingoDbDatabase(DATABASE_ROOT_FOLDER);
       
       bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, function(data) {
          console.log(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC + ' = ' + data);
       });
       bus.subscribeToCommand(webapp.shared.topics.CHAT_MESSAGE, onChatMessage);
-		
-      var topicsToTransmit = [webapp.shared.topics.CHAT_BROADCAST];
+	  bus.subscribeToCommand(webapp.shared.topics.NOT_ATHOME, onNotAtHome);
+	  
+      var topicsToTransmit = [webapp.shared.topics.CHAT_BROADCAST, webapp.shared.topics.ACTUALLYNOTATHOME];
       var busBridge = new common.infrastructure.busbridge.ServerSocketIoBusBridge(bus, topicsToTransmit, io);
-      
+      publishAllNotAtHome();
      	
 		app.get('*', replaceSpacesInRequestUrlByEscapeSequence);
 		app.get('*', logRequest);

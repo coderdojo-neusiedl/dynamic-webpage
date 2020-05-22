@@ -374,6 +374,8 @@ assertNamespace('webapp.shared.topics');
  */
 webapp.shared.topics.COUNTER = '/shared/counter';
 
+webapp.shared.topics.ACTUALLYNOTATHOME = '/shared/actuallynotathome';
+
 
 //                COMMANDS
 
@@ -407,3 +409,6 @@ webapp.shared.topics.CHAT_MESSAGE = '/shared/chatmessage';
  * example data: { 'name': 'Thomas', 'message': 'hello world!'}
  */
 webapp.shared.topics.CHAT_BROADCAST = '/shared/chat_broadcast';
+
+
+webapp.shared.topics.NOT_ATHOME = '/shared/not_athome';

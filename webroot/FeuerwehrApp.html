@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+   <meta charset="UTF-8"/>
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <title>Feuerwehr App</title>
+   <script type="text/javascript" src="lib/jquery-3.5.0.min.js" charset="UTF-8"></script>
+   <script type="text/javascript" src="javascripts/dynamicPageLibrary.js" charset="UTF-8"></script>
+   <script src="/socket.io/socket.io.js" charset="UTF-8"></script>
+   <script>
+	   
+		$(document).ready(function() {
+			
+			var sendNotAtHome = function sendNotAtHome() {
+				bus.sendCommand(webapp.shared.topics.NOT_ATHOME, {straße: $('#straße').val(), hausnummer: $('#hausnummer').val()} );
+				console.log('sendNotAtHome');
+				//$('#nachricht').val('');
+			};
+			var onActuallyNotAtHome = function onActuallyNotAtHome(streets){
+				//console.log(streets);
+				$('#nochzubesuchen').val(streets.map(street => street.straße+' '+street.hausnummer).join('\n'));
+			}
+			$('#senden').click(sendNotAtHome);
+			$('#hausnummer').keypress(function (e) {
+				var key = e.which;
+				if(key == 13)  // the enter key code
+				{
+					sendNotAtHome();
+					return false;  
+				}
+			});   
+			var bus = new common.infrastructure.bus.Bus();
+			bus.subscribeToPublication(webapp.shared.topics.ACTUALLYNOTATHOME, onActuallyNotAtHome);
+			var topicsToTransmit = [webapp.shared.topics.NOT_ATHOME];
+			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
+      });
+   </script>
+</head>
+
+<body>
+<h1>Feuerwehr App</h1>
+<table class="table table-sm">
+	<tbody><tr>
+		<td>Straße</td>
+		<td><input id="straße" value="" size="40" type="text"></td>
+	</tr>
+	<tr>
+		<td>Hausnummer:</td>
+		<td><input id="hausnummer" value="" size="40" type="text"></td>
+	</tr>
+	
+	<tr>
+		<td colspan="2"><button id="senden">Senden</button></td>
+	</tr>
+	<tr>
+		<td>NochZuBesuchen:</td>
+		<td><textarea id="nochzubesuchen" rows="5" cols="30" readonly></textarea></td>
+	</tr>
+   </tbody>
+</table>
+</body>
+</html>  
