@@ -11,27 +11,26 @@
 	   
 		$(document).ready(function() {
 			
-			var sendNotAtHome = function sendNotAtHome() {
-				bus.sendCommand(webapp.shared.topics.NOT_ATHOME, {straße: $('#straße').val(), hausnummer: $('#hausnummer').val()} );
-				console.log('sendNotAtHome');
-				//$('#nachricht').val('');
+			var addAddressToNotAtHomeList = function addAddressToNotAtHomeList() {
+				bus.sendCommand(webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST, {street: $('#street').val(), number: $('#number').val()} );
 			};
-			var onActuallyNotAtHome = function onActuallyNotAtHome(streets){
-				//console.log(streets);
-				$('#nochzubesuchen').val(streets.map(street => street.straße+' '+street.hausnummer).join('\n'));
+			
+			var onActuallyNotAtHome = function onActuallyNotAtHome(notAtHomeList){
+				$('#notAtHome').val(notAtHomeList.map(notAtHomePerStreet => notAtHomePerStreet.street + ' '  + notAtHomePerStreet.number).join('\n'));
 			}
-			$('#senden').click(sendNotAtHome);
-			$('#hausnummer').keypress(function (e) {
+			
+			$('#addAddressButton').click(addAddressToNotAtHomeList);
+			$('#number').keypress(function (e) {
 				var key = e.which;
 				if(key == 13)  // the enter key code
 				{
-					sendNotAtHome();
+					addAddressToNotAtHomeList();
 					return false;  
 				}
 			});   
 			var bus = new common.infrastructure.bus.Bus();
 			bus.subscribeToPublication(webapp.shared.topics.ACTUALLYNOTATHOME, onActuallyNotAtHome);
-			var topicsToTransmit = [webapp.shared.topics.NOT_ATHOME];
+			var topicsToTransmit = [webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST];
 			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
       });
    </script>
@@ -42,19 +41,19 @@
 <table class="table table-sm">
 	<tbody><tr>
 		<td>Straße</td>
-		<td><input id="straße" value="" size="40" type="text"></td>
+		<td><input id="street" value="" size="40" type="text"></td>
 	</tr>
 	<tr>
 		<td>Hausnummer:</td>
-		<td><input id="hausnummer" value="" size="40" type="text"></td>
+		<td><input id="number" value="" size="40" type="text"></td>
 	</tr>
 	
 	<tr>
-		<td colspan="2"><button id="senden">Senden</button></td>
+		<td colspan="2"><button id="addAddressButton">Senden</button></td>
 	</tr>
 	<tr>
 		<td>NochZuBesuchen:</td>
-		<td><textarea id="nochzubesuchen" rows="5" cols="30" readonly></textarea></td>
+		<td><textarea id="notAtHome" rows="5" cols="30" readonly></textarea></td>
 	</tr>
    </tbody>
 </table>

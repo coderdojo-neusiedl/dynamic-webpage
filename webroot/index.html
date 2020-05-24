@@ -11,23 +11,20 @@
 	   var chatInhalt = [];
 
 		$(document).ready(function() {
-         var onConnectedStateChanged = function onConnectedStateChanged(data) {
-			};
-			
-			var onChatMessage = function onChatMessage(data) {
-				var message = data.name+' hat geschrieben: '+data.nachricht;
-				chatInhalt[chatInhalt.length] = message;
+         var onChatMessage = function onChatMessage(data) {
+				var chatZeile = data.name + ' hat geschrieben: ' + data.message;
+				chatInhalt[chatInhalt.length] = chatZeile;
 				chatInhalt = chatInhalt.slice(-10);
-				$('#Chat_Verlauf').val(chatInhalt.join('\n'));
+				$('#chatHistory').val(chatInhalt.join('\n'));
 			};
 			
 			var sendChatMessage = function sendChatMessage() {
-				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), nachricht: $('#nachricht').val()} );
-				$('#nachricht').val('');
+				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), message: $('#message').val()} );
+				$('#message').val('');
 			};
 			
-			$('#senden').click(sendChatMessage);
-			$('#nachricht').keypress(function (e) {
+			$('#sendMessage').click(sendChatMessage);
+			$('#message').keypress(function (e) {
 				var key = e.which;
 				if(key == 13)  // the enter key code
 				{
@@ -36,7 +33,6 @@
 				}
 			});   
 			var bus = new common.infrastructure.bus.Bus();
-			bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, onConnectedStateChanged);
 			bus.subscribeToCommand(webapp.shared.topics.CHAT_BROADCAST, onChatMessage);
 			var topicsToTransmit = [webapp.shared.topics.CHAT_MESSAGE];
 			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
@@ -53,14 +49,14 @@
 	</tr>
 	<tr>
 		<td>Nachricht:</td>
-		<td><input id="nachricht" value="" size="40" type="text"></td>
+		<td><input id="message" value="" size="40" type="text"></td>
 	</tr>
 	<tr>
 		<td>Chat:</td>
-		<td><textarea id="Chat_Verlauf" rows="5" cols="30" readonly></textarea></td>
+		<td><textarea id="chatHistory" rows="5" cols="30" readonly></textarea></td>
 	</tr>
 	<tr>
-		<td colspan="2"><button id="senden">Senden</button></td>
+		<td colspan="2"><button id="sendMessage">Senden</button></td>
 	</tr>
    </tbody>
 </table>

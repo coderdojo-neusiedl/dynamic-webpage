@@ -12,7 +12,8 @@ var WEB_ROOT_FOLDER        = 'webroot';
 var DATABASE_ROOT_FOLDER   = 'database';
 var SERVER_PORT            = 8080;
 var LOGGING_ENABLED        = false;
-
+var COLLECTION_NAME 			= 'Neusiedl';
+  
 var app    = require('express')();
 var server = require('http').Server(app);
 var io     = require('socket.io')(server);
@@ -79,25 +80,22 @@ var Constructor = function Constructor() {
    var thisInstance = this;
    var bus;
    var database;
-   var collectionName = 'Neusiedl';
-  
-  var publish = function publish(streets){
-	 bus.publish(webapp.shared.topics.ACTUALLYNOTATHOME, streets);
+   
+	var onChatMessage = function onChatMessage(message) {
+		bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, message );
+	};
+	
+	var publishNotAtHomeList = function publishNotAtHomeList(list) {
+		bus.publish(webapp.shared.topics.ACTUALLYNOTATHOME, list);
    };
    
-	var onChatMessage = function onChatMessage(data) {
-		console.log('neue Nachricht ' +JSON.stringify(data));
-		bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, data );
-	};
-	var publishAllNotAtHome = function publishAllNotAtHome (){
-		database.getAllDocumentsInCollection(collectionName).then(publish);
+	var sendNotAtHomeListToClients = function sendNotAtHomeListToClients() {
+		database.getAllDocumentsInCollection(COLLECTION_NAME).then(publishNotAtHomeList);
 	} ;
 	
-	var onNotAtHome = function onNotAtHome(data) {
-		//console.log('not at home ' +JSON.stringify(data));
-		database.insert(collectionName, data ).then(publishAllNotAtHome);
+	var addAddressToNotAtHomeList = function addAddressToNotAtHomeList(address) {
+		database.insert(COLLECTION_NAME, address ).then(sendNotAtHomeListToClients);
 	};
-	
 	
 	this.start = function start() {
 	
@@ -108,11 +106,11 @@ var Constructor = function Constructor() {
          console.log(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC + ' = ' + data);
       });
       bus.subscribeToCommand(webapp.shared.topics.CHAT_MESSAGE, onChatMessage);
-	  bus.subscribeToCommand(webapp.shared.topics.NOT_ATHOME, onNotAtHome);
+	   bus.subscribeToCommand(webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST, addAddressToNotAtHomeList);
 	  
       var topicsToTransmit = [webapp.shared.topics.CHAT_BROADCAST, webapp.shared.topics.ACTUALLYNOTATHOME];
       var busBridge = new common.infrastructure.busbridge.ServerSocketIoBusBridge(bus, topicsToTransmit, io);
-      publishAllNotAtHome();
+      sendNotAtHomeListToClients();
      	
 		app.get('*', replaceSpacesInRequestUrlByEscapeSequence);
 		app.get('*', logRequest);
