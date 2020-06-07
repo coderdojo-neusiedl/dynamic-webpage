@@ -7,6 +7,9 @@
       "name": "CoderDojo",
       "email": "info@neusiedl.coderdojo.net"
    },
+   "scripts": {
+      "start": "node ./src/webserver/start.js"
+   },
    "licenses": [
       {
          "type": "BSD-3-Clause"

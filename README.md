@@ -13,6 +13,7 @@ The following software is required to install and use the workshop project.
 
 This section describes how to install the workshop project.
 
+### Windows
 1. create a folder on your hard disk and open a command line box
 2. execute `git clone https://github.com/coderdojo-neusiedl/dynamic-webpage.git`
 3. close the command line box
@@ -23,9 +24,18 @@ This section describes how to install the workshop project.
 8. start `dynamic-webpage/openCliHere.bat`
 9. execute `grunt`
 
+### Mac
+1. create a folder on your hard disk and open a command line box
+2. execute `git clone https://github.com/coderdojo-neusiedl/dynamic-webpage.git`
+3. execute `cd dynamic-webpage`
+4. execute `git checkout -b workshop-20200605 remotes/origin/workshop-20200605`
+5. execute `npm install`
+6. execute `grunt`
+
 ## Starting the webserver
 
-Start `dynamic-webpage/startWebserver.bat`. After a few seconds you should see a message like `listening at http://:::8080` telling you that the server is ready.
+**Windows**: Start `dynamic-webpage/startWebserver.bat`. After a few seconds you should see a message like `listening at http://:::8080` telling you that the server is ready.<br />
+**Mac**: execute `npm start`
 
 ## Starting the chatApp
 
