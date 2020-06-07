@@ -93,8 +93,59 @@ var Constructor = function Constructor() {
 		database.getAllDocumentsInCollection(COLLECTION_NAME).then(publishNotAtHomeList);
 	} ;
 	
+	//	bisher		{street: 'Hauptstrasse', number: 17}
+	//	neu			{street: 'Hauptstrasse', number: [17, 19]}
+	
 	var addAddressToNotAtHomeList = function addAddressToNotAtHomeList(address) {
-		database.insert(COLLECTION_NAME, address ).then(sendNotAtHomeListToClients);
+		
+		var addressPredicate = function addressPredicate(addr) {
+			return addr.street.toLowerCase() === address.street.toLowerCase();
+		};
+		
+		var addAddress = function addAddress(addresses) {
+			var existingAddress = addresses.find(addressPredicate);
+			
+			if (existingAddress === undefined) {
+				var newAddressToStore = { street: address.street, number: [address.number]};
+				database.insert(COLLECTION_NAME, newAddressToStore).then(sendNotAtHomeListToClients);
+			} else {
+				var addressToStore = { street: existingAddress.street, number: existingAddress.number};
+				if (addressToStore.number.indexOf(address.number) === -1) {
+					addressToStore.number.push(address.number);
+					database.update(COLLECTION_NAME, existingAddress.id, addressToStore).then(sendNotAtHomeListToClients); 
+				}
+			}
+		};
+	
+		database.getAllDocumentsInCollection(COLLECTION_NAME).then(addAddress);
+	};
+	
+	var removeAddressFromNotAtHomeList = function removeAddressFromNotAtHomeList(address) {
+		
+		var removeNumber = function removeNumber(currentNumber) {
+			console.log(currentNumber + ' !== ' + address.number); 
+			return currentNumber !== address.number;
+		};
+		
+		var addressPredicate = function addressPredicate(addr) {
+			return addr.street.toLowerCase() === address.street.toLowerCase();
+		};
+		
+		var removeAddress = function removeAddress(addresses) {
+			var existingAddress = addresses.find(addressPredicate);
+			
+			if (existingAddress !== undefined) {
+				existingAddress.number = existingAddress.number.filter(removeNumber);
+				console.log(existingAddress.number); 
+				if (existingAddress.number.length > 0) {
+					console.log('update');
+				} else {
+					database.remove(COLLECTION_NAME, existingAddress.id).then(sendNotAtHomeListToClients);
+				}
+			}
+		};
+		
+		database.getAllDocumentsInCollection(COLLECTION_NAME).then(removeAddress);
 	};
 	
 	this.start = function start() {
@@ -105,8 +156,10 @@ var Constructor = function Constructor() {
       bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, function(data) {
          console.log(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC + ' = ' + data);
       });
+		
       bus.subscribeToCommand(webapp.shared.topics.CHAT_MESSAGE, onChatMessage);
 	   bus.subscribeToCommand(webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST, addAddressToNotAtHomeList);
+	   bus.subscribeToCommand(webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST, removeAddressFromNotAtHomeList);
 	  
       var topicsToTransmit = [webapp.shared.topics.CHAT_BROADCAST, webapp.shared.topics.ACTUALLYNOTATHOME];
       var busBridge = new common.infrastructure.busbridge.ServerSocketIoBusBridge(bus, topicsToTransmit, io);

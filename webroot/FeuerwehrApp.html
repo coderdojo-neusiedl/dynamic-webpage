@@ -8,7 +8,12 @@
    <script type="text/javascript" src="javascripts/dynamicPageLibrary.js" charset="UTF-8"></script>
    <script src="/socket.io/socket.io.js" charset="UTF-8"></script>
    <script>
-	   
+	   var bus = new common.infrastructure.bus.Bus();
+			
+		var deleteAddress = function deleteAddress(street, number) {
+			bus.sendCommand(webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST, {street: street, number: number} );
+		};
+			
 		$(document).ready(function() {
 			
 			var addAddressToNotAtHomeList = function addAddressToNotAtHomeList() {
@@ -16,7 +21,22 @@
 			};
 			
 			var onActuallyNotAtHome = function onActuallyNotAtHome(notAtHomeList){
-				$('#notAtHome').val(notAtHomeList.map(notAtHomePerStreet => notAtHomePerStreet.street + ' '  + notAtHomePerStreet.number).join('\n'));
+				var htmlCode = '<table border="1">';
+				htmlCode += '<tbody>';
+				
+				notAtHomeList.forEach(addr => {
+					addr.number.forEach(num => {
+						htmlCode += '<tr>';
+						htmlCode += '<td>' + addr.street + '</td>';
+						htmlCode += '<td>' + num + '</td>';
+						htmlCode += '<td><button onclick="deleteAddress(\'' + addr.street + '\', \'' + num + '\')">Löschen</button></td>';
+						htmlCode += '</tr>';
+					});
+				});
+				
+				htmlCode += '</tbody>';
+				htmlCode += '</table>';
+				$('#notAtHome').html(htmlCode);
 			}
 			
 			$('#addAddressButton').click(addAddressToNotAtHomeList);
@@ -28,9 +48,8 @@
 					return false;  
 				}
 			});   
-			var bus = new common.infrastructure.bus.Bus();
 			bus.subscribeToPublication(webapp.shared.topics.ACTUALLYNOTATHOME, onActuallyNotAtHome);
-			var topicsToTransmit = [webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST];
+			var topicsToTransmit = [webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST, webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST];
 			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
       });
    </script>
@@ -39,7 +58,8 @@
 <body>
 <h1>Feuerwehr App</h1>
 <table class="table table-sm">
-	<tbody><tr>
+	<tbody>
+	<tr>
 		<td>Straße</td>
 		<td><input id="street" value="" size="40" type="text"></td>
 	</tr>
@@ -47,15 +67,13 @@
 		<td>Hausnummer:</td>
 		<td><input id="number" value="" size="40" type="text"></td>
 	</tr>
-	
 	<tr>
 		<td colspan="2"><button id="addAddressButton">Senden</button></td>
 	</tr>
-	<tr>
-		<td>NochZuBesuchen:</td>
-		<td><textarea id="notAtHome" rows="5" cols="30" readonly></textarea></td>
-	</tr>
-   </tbody>
+	</tbody>
 </table>
+
+<div id="notAtHome"></div>
+
 </body>
 </html>  

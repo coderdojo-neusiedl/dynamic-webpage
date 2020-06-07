@@ -51,3 +51,17 @@ webapp.shared.topics.CHAT_BROADCAST = '/shared/chat_broadcast';
  * example data: {'street': 'Hauptstrasse', 'number': '23'}
  */
 webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST = '/shared/addToNotAtHome';
+
+/**
+ * Informs the server that a client wants to remove an address from the list of addresses that were not at home.
+ *
+ * The data is an object containing the values (keys):
+ *
+ * - street : string    the name of the street (e.g. 'Hauptstrasse')
+ * - number : string    the number of the house or flat (e.g. '10', '33/7')
+ *
+ * example data: {'street': 'Hauptstrasse', 'number': '23'}
+ */
+webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST = '/shared/removeToNotAtHome';
+
+
