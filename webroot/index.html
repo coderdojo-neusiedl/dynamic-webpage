@@ -3,15 +3,85 @@
 <head>
    <meta charset="UTF-8"/>
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-   <title>dynamic Webpage</title>
-   <script type="text/javascript" src="lib/jquery-3.5.0.min.js" charset="UTF-8"></script>
+   <title>Feuerwehr App</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
    <script type="text/javascript" src="javascripts/dynamicPageLibrary.js" charset="UTF-8"></script>
    <script src="/socket.io/socket.io.js" charset="UTF-8"></script>
    <script>
-	   var chatInhalt = [];
-
+		var chatInhalt = [];
+	   var bus = new common.infrastructure.bus.Bus();
+			
+		var deleteAddress = function deleteAddress(street, number) {
+			bus.sendCommand(webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST, {street: street, number: number} );
+		};
+			
+		var showTab = function showTab(event) {
+			var idOfTabToShow = event.target.id + 'Tab';
+			var tabs = $('body > div');
+			
+			for(var i = 0; i < tabs.length; i++) {
+				var tab = tabs[i];
+				if(tab.id === idOfTabToShow) {
+					$(tab).removeClass('d-none');
+				} else {
+					$(tab).addClass('d-none');
+				}
+			}
+			
+			$('.collapse').collapse('hide');
+		};
+		
 		$(document).ready(function() {
-         var onChatMessage = function onChatMessage(data) {
+			
+			var applyFilterValue = function applyFilterValue() {
+				var filterValue = $('#filterValue').val();
+				var streets = $('#notAtHomeTable td:nth-child(1)');
+				console.log(Object.values(streets));
+				for (var i=0; i < streets.length; i++) {
+				   var street = streets[i];
+					var currentStreet = street.innerText;
+					console.log(currentStreet);
+					if (currentStreet.toLowerCase().indexOf(filterValue) === 0) {
+						$(street).parent().removeClass('d-none');
+					} else {
+						$(street).parent().addClass('d-none');
+					}
+				}
+			};
+			
+			var addAddressToNotAtHomeList = function addAddressToNotAtHomeList() {
+				bus.sendCommand(webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST, {street: $('#street').val(), number: $('#number').val()} );
+			};
+			
+			var onActuallyNotAtHome = function onActuallyNotAtHome(notAtHomeList){
+				var htmlCode = '<table class="table table-striped">';
+				htmlCode += '<tbody>';
+				htmlCode += '<tr>';
+				htmlCode += '<th>Straße</th>';
+				htmlCode += '<th>Hausnummer</th>';
+				htmlCode += '<th></th>';
+				htmlCode += '</tr>';
+				
+				notAtHomeList.forEach(addr => {
+					addr.number.forEach(num => {
+						htmlCode += '<tr>';
+						htmlCode += '<td>' + addr.street + '</td>';
+						htmlCode += '<td>' + num + '</td>';
+						htmlCode += '<td><button onclick="deleteAddress(\'' + addr.street + '\', \'' + num + '\')">Löschen</button></td>';
+						htmlCode += '</tr>';
+					});
+				});
+				
+				htmlCode += '</tbody>';
+				htmlCode += '</table>';
+				$('#notAtHomeTable').html(htmlCode);
+				applyFilterValue();
+			}
+			
+			var onChatMessage = function onChatMessage(data) {
 				var chatZeile = data.name + ' hat geschrieben: ' + data.message;
 				chatInhalt[chatInhalt.length] = chatZeile;
 				chatInhalt = chatInhalt.slice(-10);
@@ -19,12 +89,24 @@
 			};
 			
 			var sendChatMessage = function sendChatMessage() {
-				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), message: $('#message').val()} );
-				$('#message').val('');
+				console.log('sendChatMessage');
+				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), message: $('#chatMessage').val()} );
+				$('#chatMessage').val('');
 			};
 			
-			$('#sendMessage').click(sendChatMessage);
-			$('#message').keypress(function (e) {
+			$('#addAddressButton').click(addAddressToNotAtHomeList);
+			$('#number').keypress(function (e) {
+				var key = e.which;
+				if(key == 13)  // the enter key code
+				{
+					addAddressToNotAtHomeList();
+					return false;  
+				}
+			});  
+			$("#filterValue").keyup(applyFilterValue);
+			$('#navbarTogglerDemo01 a').click(showTab);
+			$('#sendChatMessage').click(sendChatMessage);
+			$('#chatMessage').keypress(function (e) {
 				var key = e.which;
 				if(key == 13)  // the enter key code
 				{
@@ -32,33 +114,78 @@
 					return false;  
 				}
 			});   
-			var bus = new common.infrastructure.bus.Bus();
+			
+			bus.subscribeToPublication(webapp.shared.topics.ACTUALLYNOTATHOME, onActuallyNotAtHome);
 			bus.subscribeToCommand(webapp.shared.topics.CHAT_BROADCAST, onChatMessage);
-			var topicsToTransmit = [webapp.shared.topics.CHAT_MESSAGE];
+			var topicsToTransmit = [
+												webapp.shared.topics.ADD_ADDRESS_TO_NOT_AT_HOME_LIST, 
+												webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST,
+												webapp.shared.topics.CHAT_MESSAGE
+											];
 			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
       });
    </script>
 </head>
 
 <body>
-<h1>Chat App</h1>
-<table class="table table-sm">
-	<tbody><tr>
-		<td>Name:</td>
-		<td><input id="name" value="" size="40" type="text"></td>
-	</tr>
-	<tr>
-		<td>Nachricht:</td>
-		<td><input id="message" value="" size="40" type="text"></td>
-	</tr>
-	<tr>
-		<td>Chat:</td>
-		<td><textarea id="chatHistory" rows="5" cols="30" readonly></textarea></td>
-	</tr>
-	<tr>
-		<td colspan="2"><button id="sendMessage">Senden</button></td>
-	</tr>
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="#">FeuerwehrApp</a>
+    
+	<div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" id="notAtHome">notAtHome</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="chat">chat</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div id="notAtHomeTab" class="p-3">
+	<table class="table table-sm">
+		<tbody>
+		<tr>
+			<td>Straße</td>
+			<td><input id="street" value="" size="40" type="text"></td>
+		</tr>
+		<tr>
+			<td>Hausnummer:</td>
+			<td><input id="number" value="" size="40" type="text"></td>
+		</tr>
+		<tr>
+			<td colspan="2"><button id="addAddressButton">Senden</button></td>
+		</tr>
+		</tbody>
+	</table>
+
+	<input id="filterValue" value="" size="40" type="text" placeholder="Suchen (z.B. &quot;Garten&quot;) ...">
+	<div id="notAtHomeTable"></div>
+</div>
+
+<div id="chatTab" class="d-none p-3">
+	<table class="table table-sm">
+		<tbody><tr>
+			<td>Name:</td>
+			<td><input id="name" value="" size="40" type="text"></td>
+		</tr>
+		<tr>
+			<td>Nachricht:</td>
+			<td><input id="chatMessage" value="" size="40" type="text"></td>
+		</tr>
+		<tr>
+			<td>Chat:</td>
+			<td><textarea id="chatHistory" rows="5" cols="30" readonly></textarea></td>
+		</tr>
+		<tr>
+			<td colspan="2"><button id="sendChatMessage">Senden</button></td>
+		</tr>
    </tbody>
-</table>
+</table></div>
+
 </body>
 </html>  

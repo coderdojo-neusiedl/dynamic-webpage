@@ -123,7 +123,6 @@ var Constructor = function Constructor() {
 	var removeAddressFromNotAtHomeList = function removeAddressFromNotAtHomeList(address) {
 		
 		var removeNumber = function removeNumber(currentNumber) {
-			console.log(currentNumber + ' !== ' + address.number); 
 			return currentNumber !== address.number;
 		};
 		
@@ -136,9 +135,8 @@ var Constructor = function Constructor() {
 			
 			if (existingAddress !== undefined) {
 				existingAddress.number = existingAddress.number.filter(removeNumber);
-				console.log(existingAddress.number); 
 				if (existingAddress.number.length > 0) {
-					console.log('update');
+					database.update(COLLECTION_NAME, existingAddress.id, existingAddress).then(sendNotAtHomeListToClients);
 				} else {
 					database.remove(COLLECTION_NAME, existingAddress.id).then(sendNotAtHomeListToClients);
 				}
