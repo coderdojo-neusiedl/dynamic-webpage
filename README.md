@@ -18,7 +18,7 @@ This section describes how to install the workshop project.
 2. execute `git clone https://github.com/coderdojo-neusiedl/dynamic-webpage.git`
 3. close the command line box
 4. start `dynamic-webpage/openCliHere.bat` (info: a command line box will inform you that the home folder of grunt does not exist. That's ok ... just press any key to continue)
-5. execute `git checkout workshop-20200619`
+5. execute `git checkout workshop-20200703`
 6. execute `npm install`
 7. close the command line box
 8. start `dynamic-webpage/openCliHere.bat`
@@ -28,7 +28,7 @@ This section describes how to install the workshop project.
 1. create a folder on your hard disk and open a command line box
 2. execute `git clone https://github.com/coderdojo-neusiedl/dynamic-webpage.git`
 3. execute `cd dynamic-webpage`
-4. execute `git git checkout workshop-20200619`
+4. execute `git git checkout workshop-20200703`
 5. execute `npm install`
 6. execute `grunt`
 
