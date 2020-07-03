@@ -3,17 +3,22 @@ require('../SharedTopics.js');
 require('../common/infrastructure/bus/Bus.js');
 require('../common/infrastructure/busbridge/ServerSocketIoBusBridge.js');
 require('../server/database/TingoDbDatabase.js');
-
 var FileSystem = require('../utils/FileSystem.js');
 var fileSystem = new FileSystem();
 var express = require('express');
+var jwt = require('jsonwebtoken');
+var cookieParser = require('cookie-parser');
 
 var WEB_ROOT_FOLDER        = 'webroot';
 var DATABASE_ROOT_FOLDER   = 'database';
 var SERVER_PORT            = 8080;
 var LOGGING_ENABLED        = false;
 var COLLECTION_NAME 			= 'Neusiedl';
-  
+var LOGIN_PAGE					= '/login.html';
+var COOKIE_NAME				= 'session';
+var START_PAGE					= '/index.html';
+var SECRET						= 'mySecret';
+
 var app    = require('express')();
 var server = require('http').Server(app);
 var io     = require('socket.io')(server);
@@ -74,7 +79,40 @@ var handleFileRequests = function handleFileRequests(request,response) {
       response.sendFile(requestedDocumentUrl, { root: WEB_ROOT_FOLDER } );
    }
 };
-   
+
+var authenticateUser = function authenticateUser(request, response) {
+	// TODO: use database instead of hardcoded user/password
+	// DO NOT USE IN PRODUCTION ENVIRONMENT AND DO NOT COMMIT IT!!!
+	if(request.body.name === 'Thomas' && request.body.password === '1234') {
+		var token = jwt.sign({ name: request.body.name }, SECRET);
+		response.cookie(COOKIE_NAME, token, { expires: 0, sameSite: 'strict' });
+		response.redirect(START_PAGE);
+	} else {
+		response.status(401).send('name oder passwort falsch');
+	}
+}
+
+var assertUserAuthenticated = function assertUserAuthenticated(request, response, next) {
+	if(request.path !== LOGIN_PAGE) {
+		
+		var tokenOk = true;
+		
+		try {
+			jwt.verify(request.cookies[COOKIE_NAME], SECRET);
+		} catch(err){
+			tokenOk = false;
+		}
+		
+		if ( tokenOk ) {
+			next();
+		} else {
+			response.redirect(LOGIN_PAGE);
+		}
+	} else {
+		next();
+	}
+};
+
 var Constructor = function Constructor() {
 	
    var thisInstance = this;
@@ -163,9 +201,15 @@ var Constructor = function Constructor() {
       var busBridge = new common.infrastructure.busbridge.ServerSocketIoBusBridge(bus, topicsToTransmit, io);
       sendNotAtHomeListToClients();
      	
+		app.use(cookieParser());
+		app.use(express.urlencoded({ extended: true }));
+		
 		app.get('*', replaceSpacesInRequestUrlByEscapeSequence);
 		app.get('*', logRequest);
+		app.get('*', assertUserAuthenticated);
 		app.get('*', handleFileRequests );
+		
+		app.post(LOGIN_PAGE, authenticateUser);
 		
 		console.log('starting webserver ...');
 
