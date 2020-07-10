@@ -13,7 +13,8 @@
    <script>
 		var chatInhalt = [];
 	   var bus = new common.infrastructure.bus.Bus();
-			
+		var cookieObject;
+		
 		var deleteAddress = function deleteAddress(street, number) {
 			bus.sendCommand(webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST, {street: street, number: number} );
 		};
@@ -39,7 +40,6 @@
 			var applyFilterValue = function applyFilterValue() {
 				var filterValue = $('#filterValue').val();
 				var streets = $('#notAtHomeTable td:nth-child(1)');
-				console.log(Object.values(streets));
 				for (var i=0; i < streets.length; i++) {
 				   var street = streets[i];
 					var currentStreet = street.innerText;
@@ -89,8 +89,7 @@
 			};
 			
 			var sendChatMessage = function sendChatMessage() {
-				console.log('sendChatMessage');
-				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), message: $('#chatMessage').val()} );
+				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), message: $('#chatMessage').val(), session: cookieObject.session } );
 				$('#chatMessage').val('');
 			};
 			
@@ -123,6 +122,10 @@
 												webapp.shared.topics.CHAT_MESSAGE
 											];
 			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
+			
+			var cookieObjectAsString = '{"' + document.cookie.replaceAll('=', '":"').replaceAll(' username', 'username').replaceAll(';', '","') + '"}';
+			cookieObject=JSON.parse(cookieObjectAsString);
+			$('#chatTab #name').val(cookieObject.username);
       });
    </script>
 </head>
@@ -171,7 +174,7 @@
 	<table class="table table-sm">
 		<tbody><tr>
 			<td>Name:</td>
-			<td><input id="name" value="" size="40" type="text"></td>
+			<td><input id="name" value="" size="40" type="text" readonly></td>
 		</tr>
 		<tr>
 			<td>Nachricht:</td>

@@ -18,6 +18,7 @@ var LOGIN_PAGE					= '/login.html';
 var COOKIE_NAME				= 'session';
 var START_PAGE					= '/index.html';
 var SECRET						= 'mySecret';
+var COOKIE_USERNAME			= 'username';
 
 var app    = require('express')();
 var server = require('http').Server(app);
@@ -86,24 +87,28 @@ var authenticateUser = function authenticateUser(request, response) {
 	if(request.body.name === 'Thomas' && request.body.password === '1234') {
 		var token = jwt.sign({ name: request.body.name }, SECRET);
 		response.cookie(COOKIE_NAME, token, { expires: 0, sameSite: 'strict' });
+		response.cookie(COOKIE_USERNAME, request.body.name, { expires: 0, sameSite: 'strict' });
 		response.redirect(START_PAGE);
 	} else {
 		response.status(401).send('name oder passwort falsch');
 	}
-}
+};
+
+var tokenIsValid = function tokenIsValid(token) {
+	var tokenOk = true;
+		
+	try {
+		jwt.verify(token, SECRET);
+	} catch(err){
+		tokenOk = false;
+	}
+	
+	return tokenOk;
+};
 
 var assertUserAuthenticated = function assertUserAuthenticated(request, response, next) {
 	if(request.path !== LOGIN_PAGE) {
-		
-		var tokenOk = true;
-		
-		try {
-			jwt.verify(request.cookies[COOKIE_NAME], SECRET);
-		} catch(err){
-			tokenOk = false;
-		}
-		
-		if ( tokenOk ) {
+		if ( tokenIsValid(request.cookies[COOKIE_NAME]) ) {
 			next();
 		} else {
 			response.redirect(LOGIN_PAGE);
@@ -120,7 +125,9 @@ var Constructor = function Constructor() {
    var database;
    
 	var onChatMessage = function onChatMessage(message) {
-		bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, message );
+		if (tokenIsValid(message.session)) {
+			bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, message );
+		}
 	};
 	
 	var publishNotAtHomeList = function publishNotAtHomeList(list) {
