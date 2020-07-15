@@ -18,7 +18,6 @@ var LOGIN_PAGE					= '/login.html';
 var COOKIE_NAME				= 'session';
 var START_PAGE					= '/index.html';
 var SECRET						= 'mySecret';
-var COOKIE_USERNAME			= 'username';
 
 var app    = require('express')();
 var server = require('http').Server(app);
@@ -87,7 +86,6 @@ var authenticateUser = function authenticateUser(request, response) {
 	if(request.body.name === 'Thomas' && request.body.password === '1234') {
 		var token = jwt.sign({ name: request.body.name }, SECRET);
 		response.cookie(COOKIE_NAME, token, { expires: 0, sameSite: 'strict' });
-		response.cookie(COOKIE_USERNAME, request.body.name, { expires: 0, sameSite: 'strict' });
 		response.redirect(START_PAGE);
 	} else {
 		response.status(401).send('name oder passwort falsch');
@@ -104,6 +102,12 @@ var tokenIsValid = function tokenIsValid(token) {
 	}
 	
 	return tokenOk;
+};
+var decodeToken = function decodeToken(token) {
+	var data = token.split('.')[1];
+	var decodedData = Buffer.from(data, 'base64').toString();
+	
+	return JSON.parse(decodedData);
 };
 
 var assertUserAuthenticated = function assertUserAuthenticated(request, response, next) {
@@ -126,7 +130,7 @@ var Constructor = function Constructor() {
    
 	var onChatMessage = function onChatMessage(message) {
 		if (tokenIsValid(message.session)) {
-			bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, message );
+			bus.sendCommand(webapp.shared.topics.CHAT_BROADCAST, { message: message.message, name: decodeToken(message.session).name } );
 		}
 	};
 	

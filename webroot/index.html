@@ -13,7 +13,7 @@
    <script>
 		var chatInhalt = [];
 	   var bus = new common.infrastructure.bus.Bus();
-		var cookieObject;
+		var jwtObject;
 		
 		var deleteAddress = function deleteAddress(street, number) {
 			bus.sendCommand(webapp.shared.topics.REMOVE_ADDRESS_FROM_NOT_AT_HOME_LIST, {street: street, number: number} );
@@ -89,7 +89,7 @@
 			};
 			
 			var sendChatMessage = function sendChatMessage() {
-				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, {name: $('#name').val(), message: $('#chatMessage').val(), session: cookieObject.session } );
+				bus.sendCommand(webapp.shared.topics.CHAT_MESSAGE, { message: $('#chatMessage').val(), session: jwtObject.token } );
 				$('#chatMessage').val('');
 			};
 			
@@ -123,9 +123,19 @@
 											];
 			var busBridge = new common.infrastructure.busbridge.ClientSocketIoBusBridge(bus, topicsToTransmit, io);
 			
-			var cookieObjectAsString = '{"' + document.cookie.replaceAll('=', '":"').replaceAll(' username', 'username').replaceAll(';', '","') + '"}';
-			cookieObject=JSON.parse(cookieObjectAsString);
-			$('#chatTab #name').val(cookieObject.username);
+			var cookies = document.cookie
+							.split('; ')
+							.map(function(cookie) { return cookie.split('='); })
+							.reduce(function(obj, cookie) {
+								obj[cookie[0]] = cookie[1];
+								return obj;
+							}, {});
+			var token = cookies.session;
+
+			jwtObject = JSON.parse(atob(token.split('.')[1]));
+			jwtObject.token = token;
+
+			$('#chatTab #name').val(jwtObject.name);
       });
    </script>
 </head>
