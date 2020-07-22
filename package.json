@@ -8,7 +8,8 @@
       "email": "info@neusiedl.coderdojo.net"
    },
    "scripts": {
-      "start": "node ./src/webserver/start.js"
+      "start": "node ./src/webserver/start.js",
+      "grunt": "./node_modules/.bin/grunt"
    },
    "licenses": [
       {
