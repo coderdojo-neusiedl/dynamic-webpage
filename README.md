@@ -30,7 +30,7 @@ This section describes how to install the workshop project.
 3. execute `cd dynamic-webpage`
 4. execute `git git checkout workshop-20200710`
 5. execute `npm install`
-6. execute `grunt`
+6. execute `npm run grunt`
 
 ## Starting the webserver
 
