@@ -40,3 +40,10 @@ This section describes how to install the workshop project.
 ## Starting the chatApp
 
 Open a browser (e.g. Firefox) and enter the address `http://localhost:8080/`.
+
+## Building the Docker Image
+1. change to the that contains the Dockerfile
+2. execute `docker build -t dynamic-webpage .`
+
+## Starting a Docker Container
+To start a Docker Container execute `docker run --rm -p8080:8080 dynamic-webpage`
