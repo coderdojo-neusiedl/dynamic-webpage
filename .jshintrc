@@ -10,7 +10,7 @@
   "maxparams": 5,
   "maxdepth": 5,
   "maxcomplexity": 15,
-
+  
   "globals": {
    "require": false,
    "module": false,

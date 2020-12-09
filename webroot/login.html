@@ -8,22 +8,30 @@
 </head>
 
 <body>
-<form method="post">
-	<table class="table table-sm">
-		<tbody>
-		<tr>
-			<td>Name:</td>
-			<td><input name="name" value="" size="40" type="text"></td>
-		</tr>
-		<tr>
-			<td>Passwort:</td>
-			<td><input name="password" value="" size="40" type="password"></td>
-		</tr>
-		<tr>
-			<td colspan="2"><button type="submit">anmelden</button></td>
-		</tr>
-		</tbody>
-	</table>
-</form>
+   <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+      <a class="navbar-brand" href="#">FeuerwehrApp (Login)</a>
+   </nav>
+    
+   <form method="post">
+      <table class="table-borderless table-sm w-auto mx-auto m-4">
+         <tbody>
+         <tr>
+            <td>Name:</td>
+            <td><input name="name" value="" type="text"></td>
+         </tr>
+         <tr>
+            <td>Passwort:</td>
+            <td><input name="password" value="" type="password"></td>
+         </tr>
+         <tr>
+            <td colspan="2" class="text-center"><button type="submit">anmelden</button></td>
+         </tr>
+         </tbody>
+      </table>
+   </form>
+
+   <div class="card-footer text-muted bg-danger p-1">
+      <p class="text-center text-light m-0">supported by <a href="https://neusiedl.coderdojo.net" class="text-warning">CoderDojo</a></p>
+   </div>
 </body>
 </html>  

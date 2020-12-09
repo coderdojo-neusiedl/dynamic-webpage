@@ -28,7 +28,9 @@
 				if(tab.id === idOfTabToShow) {
 					$(tab).removeClass('d-none');
 				} else {
-					$(tab).addClass('d-none');
+					if(tab.id !== 'footer') {
+                  $(tab).addClass('d-none');
+               }
 				}
 			}
 			
@@ -38,12 +40,11 @@
 		$(document).ready(function() {
 			
 			var applyFilterValue = function applyFilterValue() {
-				var filterValue = $('#filterValue').val();
+				var filterValue = $('#filterValue').val().toLowerCase();
 				var streets = $('#notAtHomeTable td:nth-child(1)');
 				for (var i=0; i < streets.length; i++) {
 				   var street = streets[i];
 					var currentStreet = street.innerText;
-					console.log(currentStreet);
 					if (currentStreet.toLowerCase().indexOf(filterValue) === 0) {
 						$(street).parent().removeClass('d-none');
 					} else {
@@ -61,7 +62,7 @@
 				htmlCode += '<tbody>';
 				htmlCode += '<tr>';
 				htmlCode += '<th>Straße</th>';
-				htmlCode += '<th>Hausnummer</th>';
+				htmlCode += '<th>Nr.</th>';
 				htmlCode += '<th></th>';
 				htmlCode += '</tr>';
 				
@@ -82,7 +83,7 @@
 			}
 			
 			var onChatMessage = function onChatMessage(data) {
-				var chatZeile = data.name + ' hat geschrieben: ' + data.message;
+				var chatZeile = data.name + ': ' + data.message;
 				chatInhalt[chatInhalt.length] = chatZeile;
 				chatInhalt = chatInhalt.slice(-10);
 				$('#chatHistory').val(chatInhalt.join('\n'));
@@ -159,46 +160,55 @@
   </div>
 </nav>
 
-<div id="notAtHomeTab" class="p-3">
+<div id="notAtHomeTab" class="p-2">
 	<table class="table table-sm">
 		<tbody>
 		<tr>
 			<td>Straße</td>
-			<td><input id="street" value="" size="40" type="text"></td>
+			<td><input id="street" value="" type="text"></td>
 		</tr>
 		<tr>
-			<td>Hausnummer:</td>
-			<td><input id="number" value="" size="40" type="text"></td>
+			<td>Nr:</td>
+			<td><input id="number" value="" type="text"></td>
 		</tr>
 		<tr>
-			<td colspan="2"><button id="addAddressButton">Senden</button></td>
+			<td colspan="2" class="text-center"><button id="addAddressButton">Senden</button></td>
 		</tr>
 		</tbody>
 	</table>
 
-	<input id="filterValue" value="" size="40" type="text" placeholder="Suchen (z.B. &quot;Garten&quot;) ...">
-	<div id="notAtHomeTable"></div>
+	<p>
+      <input id="filterValue" value="" type="text" placeholder="Suchen (z.B. &quot;Garten&quot;) ...">
+   </p>
+
+   <div id="notAtHomeTable"></div>
 </div>
 
-<div id="chatTab" class="d-none p-3">
-	<table class="table table-sm">
-		<tbody><tr>
-			<td>Name:</td>
-			<td><input id="name" value="" size="40" type="text" readonly></td>
-		</tr>
-		<tr>
-			<td>Nachricht:</td>
-			<td><input id="chatMessage" value="" size="40" type="text"></td>
-		</tr>
-		<tr>
-			<td>Chat:</td>
-			<td><textarea id="chatHistory" rows="5" cols="30" readonly></textarea></td>
-		</tr>
-		<tr>
-			<td colspan="2"><button id="sendChatMessage">Senden</button></td>
-		</tr>
-   </tbody>
-</table></div>
+<div id="chatTab" class="d-none p-1">
+	<table class="table-borderless table-sm mx-auto m-4">
+		<tbody>
+         <tr>
+            <td>Name:</td>
+            <td><input id="name" value="" type="text" readonly></td>
+         </tr>
+         <tr>
+            <td>Nachricht:</td>
+            <td><input id="chatMessage" value="" type="text"></td>
+         </tr>
+         <tr>
+            <td colspan="2" class="text-center"><button id="sendChatMessage">Senden</button></td>
+         </tr>
+         <tr>
+            <td colspan="2"><textarea id="chatHistory" rows="6" readonly class="w-100"></textarea></td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+
+
+<div id="footer" class="card-footer text-muted bg-danger p-1">
+   <p class="text-center text-light m-0">supported by <a href="https://neusiedl.coderdojo.net" class="text-warning">CoderDojo</a></p>
+</div>
 
 </body>
 </html>  
