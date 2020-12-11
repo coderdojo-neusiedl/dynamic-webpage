@@ -28,7 +28,7 @@ This section describes how to install the workshop project.
 1. create a folder on your hard disk and open a command line box
 2. execute `git clone https://github.com/coderdojo-neusiedl/dynamic-webpage.git`
 3. execute `cd dynamic-webpage`
-4. execute `git git checkout workshop-20201211`
+4. execute `git checkout workshop-20201211`
 5. execute `npm install`
 6. execute `npm run grunt`
 
