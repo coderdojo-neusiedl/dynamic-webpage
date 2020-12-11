@@ -1,8 +1,10 @@
-﻿/* global setInterval, common, webapp */
+﻿/* global setInterval, common, webapp, process */
 require('../SharedTopics.js');
 require('../common/infrastructure/bus/Bus.js');
 require('../common/infrastructure/busbridge/ServerSocketIoBusBridge.js');
 require('../server/database/TingoDbDatabase.js');
+require('../server/database/MongoDbDatabase.js');
+
 var FileSystem = require('../utils/FileSystem.js');
 var fileSystem = new FileSystem();
 var express = require('express');
@@ -22,6 +24,10 @@ var SECRET						= 'mySecret';
 var app    = require('express')();
 var server = require('http').Server(app);
 var io     = require('socket.io')(server);
+
+var databaseConnectionUri 	= process.env.DATABASE_CONNECTION_URI;
+var password 					= process.env.FEUERWEHR_APP_PASSWORD;
+var usernames 					= process.env.FEUERWEHR_APP_USERNAMES;
 
 var addToLog = function addToLog(message) {
    if (LOGGING_ENABLED) {
@@ -80,10 +86,9 @@ var handleFileRequests = function handleFileRequests(request,response) {
    }
 };
 
+
 var authenticateUser = function authenticateUser(request, response) {
-	// TODO: use database instead of hardcoded user/password
-	// DO NOT USE IN PRODUCTION ENVIRONMENT AND DO NOT COMMIT IT!!!
-	if(request.body.name === 'Thomas' && request.body.password === '1234') {
+	if(usernames.split(',').indexOf(request.body.name) >= 0 && request.body.password === password) {
 		var token = jwt.sign({ name: request.body.name }, SECRET);
 		response.cookie(COOKIE_NAME, token, { expires: 0, sameSite: 'strict' });
 		response.redirect(START_PAGE);
@@ -195,11 +200,8 @@ var Constructor = function Constructor() {
 		database.getAllDocumentsInCollection(COLLECTION_NAME).then(removeAddress);
 	};
 	
-	this.start = function start() {
-	
-      bus = new common.infrastructure.bus.Bus();
-      database = new webapp.server.database.TingoDbDatabase(DATABASE_ROOT_FOLDER);
-      
+	var onDatabaseConnected = function onDatabaseConnected() {
+
       bus.subscribeToPublication(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC, function(data) {
          console.log(common.infrastructure.busbridge.CONNECTION_STATE_TOPIC + ' = ' + data);
       });
@@ -230,6 +232,31 @@ var Constructor = function Constructor() {
 			console.log('listening at http://%s:%s', host, port);
 		});
 	};
+	
+	this.start = function start() {
+	
+		if (password === undefined) {
+			console.log('cannot start app without configured password (environment variable: FEUERWEHR_APP_PASSWORD)');
+			process.exit(1);
+		} 
+
+		if (usernames === undefined) {
+			console.log('cannot start app without configured usernames (environment variable: FEUERWEHR_APP_USERNAMES)');
+			process.exit(1);
+		} 
+
+		bus = new common.infrastructure.bus.Bus();
+	
+		if(databaseConnectionUri === undefined) {
+			console.log('connecting to TingoDB ...');
+			database = new webapp.server.database.TingoDbDatabase(DATABASE_ROOT_FOLDER);
+			onDatabaseConnected();
+		} else {
+			console.log('connecting to MongoDB ...');
+			database = new webapp.server.database.MongoDbDatabase(databaseConnectionUri, onDatabaseConnected);
+		}
+		
+   };
 };
 
 module.exports = Constructor;

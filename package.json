@@ -22,7 +22,8 @@
       "tingodb": "0.x",
       "promise": "7.x",
       "jsonwebtoken": "8.5.x",
-      "cookie-parser": "1.4.x"
+      "cookie-parser": "1.4.x",
+      "mongodb": "3.6.x"
    },
    "devDependencies": {
       "expect.js": "0.x",
