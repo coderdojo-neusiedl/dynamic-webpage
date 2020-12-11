@@ -1,4 +1,4 @@
-# Dynamic Webpage (ChatApp & FeuerwehrApp)
+# Dynamic Webpage (FeuerwehrApp)
 This project contains the source code the virtual CoderDojo will use in the workshop on August 7th.
 
 ## Prerequisites
