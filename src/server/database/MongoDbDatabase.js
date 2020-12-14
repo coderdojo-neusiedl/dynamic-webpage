@@ -14,7 +14,7 @@ webapp.server.database.MongoDbDatabase = function MongoDbDatabase(connectionUri,
    var mongoClient;
    
    var getCollection = function getCollection(collectionName) {
-      return mongoClient.db('Neusiedl').collection(collectionName);
+      return mongoClient.db('firefighters').collection(collectionName);
    };
    
    var findAll = function findAll(cursor) {
